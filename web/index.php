@@ -2,6 +2,7 @@
 require_once __DIR__.'/../vendor/autoload.php';
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 $app = new Silex\Application();
 $app['debug'] = true;
@@ -14,6 +15,7 @@ $defaults = array(
 );
 
 $output = '';
+
 
 // ITEM //
 $app->get('/item', function (Request $request) use ($pdo, $defaults) {
@@ -168,6 +170,7 @@ $app->get('/sound/{id}', function (Silex\Application $app, $id) use ($pdo, $defa
         $results = $statement->fetchAll(PDO::FETCH_ASSOC);
         $output = json_encode($results, JSON_PRETTY_PRINT);
         $pdo = null;
+
     } catch (PDOException $e) {
         $output = "Erreur !: " . $e->getMessage();
     }
@@ -404,35 +407,23 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
                     );
             }
 
-        $entity->items[] = array(
-            'id'     => (int)    $resultsItem[0]['id'],
-            'coords' => (string) $resultsItem[0]['coords'],
-            'sounds' => $sound->sounds,
-            'images' => $image->images,
-            'texts'  => $text->texts
-        );
+            $entity->items[] = array(
+                'id'     => (int)    $resultsItem[0]['id'],
+                'coords' => (string) $resultsItem[0]['coords'],
+                'sounds' => $sound->sounds,
+                'images' => $image->images,
+                'texts'  => $text->texts
+            );
 
-    $all = json_encode($entity, JSON_PRETTY_PRINT);
-    print_r($all);
-
+            $all = json_encode($entity, JSON_PRETTY_PRINT);
+            print_r($all);
 
         }
 
-        // Pour mettre au format JSON
-        // $entity = json_encode($entity, JSON_PRETTY_PRINT);
-        // $sound = json_encode($sound, JSON_PRETTY_PRINT);
-        // $image = json_encode($image, JSON_PRETTY_PRINT);
-        // $text = json_encode($text, JSON_PRETTY_PRINT);
         $pdo = null;
     } catch (PDOException $e) {
         $entity = "Erreur !: " . $e->getMessage();
     }
-
-//    print_r($entity);
-    // print_r($sound);
-    // print_r($image);
-    // print_r($text);
-    die();
 
     try {
         $statement = $pdo->prepare("SELECT * FROM item where id = {$id}");
@@ -447,4 +438,12 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
     return $output;
 });
 
-$app->run();
+
+$stack = (new Stack\Builder())
+    ->push('Silpion\Stack\Logger', array('logger' => new \Monolog\Logger('logger')))
+;
+
+$app = $stack->resolve($app);
+$request = Request::create('/');
+$response = $app->handle($request);
+$app->terminate($request, $response);
