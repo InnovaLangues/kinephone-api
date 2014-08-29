@@ -443,11 +443,3 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
 });
 
 $app->run();
-$stack = (new Stack\Builder())
-    ->push('Silpion\Stack\Logger', array('logger' => new \Monolog\Logger('logger')))
-;
-
-$app = $stack->resolve($app);
-$request = Request::create('/');
-$response = $app->handle($request);
-$app->terminate($request, $response);

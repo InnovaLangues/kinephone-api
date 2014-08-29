@@ -1,8 +1,5 @@
 {
 	    "require": {
-		            "silex/silex": "~1.2",
-                    "silpion/stack-logger": "@stable",
-                    "stack/builder": "@stable",
-                    "monolog/monolog": "@stable"
+		            "silex/silex": "~1.2"
 			        }
 }
