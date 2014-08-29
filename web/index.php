@@ -285,7 +285,8 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
         // Tableau des données des items
         $entity->items = array();
 
-        $statementItem = $pdo->prepare("SELECT * FROM item where method_id = {$entity->method_id} LIMIT :limit OFFSET :offset");
+        $sqlItem = "SELECT * FROM item where method_id = {$entity->method_id}";
+        $statementItem = $pdo->prepare($sqlItem);
         $statementItem->bindValue(':limit', (int)$defaults['limit'], PDO::PARAM_INT);
 
         if ($request->query->get('offset')) {
@@ -298,15 +299,6 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
         $statementItem->execute();
         $resultsItem = $statementItem->fetchAll(PDO::FETCH_ASSOC);
 
-        $entity->items[] = array(
-            'id'     => (int)    $resultsItem[0]['id'],
-            'coords' => (string) $resultsItem[0]['coords'],
-            'sounds[]' => array(
-                )
-            );
-
-
-        $sound = new stdClass();
 
         // Ici, je parcours les items.
         // Maintenant, faut que je parcours les tables "sound", "image", "text" sur l'item en cours
@@ -315,10 +307,14 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
             $itemId = (int) $rowItem['id'];
 
             //
-            // Parcours de la table "sounds"
-            $sql = "SELECT * FROM sound where item_id = {$itemId} LIMIT :limit OFFSET :offset";
+            // Parcours de la table "sound"
+            //
+            $sound = new stdClass();
+            $sound->sounds = array(
+            );
+            $sqlSound = "SELECT * FROM sound where item_id = {$itemId}";
 
-            $statementSound = $pdo->prepare($sql);
+            $statementSound = $pdo->prepare($sqlSound);
             $statementSound->bindValue(':limit', (int)$defaults['limit'], PDO::PARAM_INT);
 
             if ($request->query->get('offset')) {
@@ -330,32 +326,28 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
 
             $statementSound->execute();
             $resultsSound = $statementSound->fetchAll(PDO::FETCH_ASSOC);
-
             //
             // Boucle sur les sounds
             foreach ($resultsSound as $rowSound){
                 // Extraction des données
-                $soundId = (int) $rowSound['id'];
-                $soundType = (string) $rowSound['sound_type'];
-                $soundUrl = (string) $rowSound['url'];
-                $soundGender = (string) $rowSound['gender'];
-                $soundVisible = (boolean) $rowSound['visible'];
-
-
-                //$entity->items[] = array();
-
-                $entity->items[]->sounds = array(
+                $sound->sounds[] = array(
                         'id'   => (int) $rowSound['id'],
-                        'type' => (string) $rowSound['sound_type']
+                        'type' => (string) $rowSound['sound_type'],
+                        'url' => (string) $rowSound['url'],
+                        'gender' => (string) $rowSound['gender'],
+                        'visible' => (boolean) $rowSound['visible']
                     );
-
             }
-
 
             //
             // Parcours de la table "image"
-            $sql = "SELECT * FROM image where item_id = $itemId LIMIT :limit OFFSET :offset";
-            $statementImage = $pdo->prepare($sql);
+            //
+            $image = new stdClass();
+            $image->images = array(
+            );
+            $sqlImage = "SELECT * FROM image where item_id = {$itemId}";
+
+            $statementImage = $pdo->prepare($sqlImage);
             $statementImage->bindValue(':limit', (int)$defaults['limit'], PDO::PARAM_INT);
 
             if ($request->query->get('offset')) {
@@ -367,71 +359,79 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
 
             $statementImage->execute();
             $resultsImage = $statementImage->fetchAll(PDO::FETCH_ASSOC);
-
             //
-            // Boucle sur les images
+            // Boucle sur les Images
             foreach ($resultsImage as $rowImage){
+                // Extraction des données
+                $image->images[] = array(
+                        'id'   => (int) $rowImage['id'],
+                        'image_type' => (string) $rowImage['image_type'],
+                        'url' => (string) $rowImage['url'],
+                        'visible' => (boolean) $rowImage['visible']
+                    );
             }
-
 
             //
             // Parcours de la table "text"
-            $sql = "SELECT * FROM text where item_id = $itemId LIMIT :limit OFFSET :offset";
-            $statementtext = $pdo->prepare($sql);
-            $statementtext->bindValue(':limit', (int)$defaults['limit'], PDO::PARAM_INT);
+            //
+            $text = new stdClass();
+            $text->texts = array(
+                );
+            $sqlText = "SELECT * FROM text where item_id = {$itemId}";
+            //echo "<br />" . $sqlText;
+            $statementText = $pdo->prepare($sqlText);
+            $statementText->bindValue(':limit', (int)$defaults['limit'], PDO::PARAM_INT);
 
             if ($request->query->get('offset')) {
-                $statementtext->bindValue(':offset', (int)$request->query->get('offset'), PDO::PARAM_INT);
+                $statementText->bindValue(':offset', (int)$request->query->get('offset'), PDO::PARAM_INT);
             }
             else {
-                $statementtext->bindValue(':offset', (int)$defaults['offset'], PDO::PARAM_INT);
+                $statementText->bindValue(':offset', (int)$defaults['offset'], PDO::PARAM_INT);
             }
 
-            $statementtext->execute();
-            $resultstext = $statementtext->fetchAll(PDO::FETCH_ASSOC);
-
+            $statementText->execute();
+            $resultsText = $statementText->fetchAll(PDO::FETCH_ASSOC);
             //
-            // Boucle sur les textes
-            foreach ($resultstext as $rowtext){
+            // Boucle sur les Texts
+            foreach ($resultsText as $rowText){
+
+                // Extraction des données
+                $text->texts[] = array(
+                        'id'   => (int) $rowText['id'],
+                        'text_type' => (string) $rowText['text_type'],
+                        'text' => (string) $rowText['text'],
+                        'visible' => (boolean) $rowText['visible']
+                    );
             }
+
+        $entity->items[] = array(
+            'id'     => (int)    $resultsItem[0]['id'],
+            'coords' => (string) $resultsItem[0]['coords'],
+            'sounds' => $sound->sounds,
+            'images' => $image->images,
+            'texts'  => $text->texts
+        );
+
+    $all = json_encode($entity, JSON_PRETTY_PRINT);
+    print_r($all);
 
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        $entity = json_encode($entity, JSON_PRETTY_PRINT);
+        // Pour mettre au format JSON
+        // $entity = json_encode($entity, JSON_PRETTY_PRINT);
+        // $sound = json_encode($sound, JSON_PRETTY_PRINT);
+        // $image = json_encode($image, JSON_PRETTY_PRINT);
+        // $text = json_encode($text, JSON_PRETTY_PRINT);
         $pdo = null;
     } catch (PDOException $e) {
         $entity = "Erreur !: " . $e->getMessage();
     }
 
-    print_r($entity);
+//    print_r($entity);
+    // print_r($sound);
+    // print_r($image);
+    // print_r($text);
     die();
 
     try {
