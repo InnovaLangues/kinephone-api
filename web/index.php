@@ -9,6 +9,7 @@ $app['debug'] = true;
 
 $pdo = new PDO('mysql:host=localhost;dbname=kinephone', "kinephone", "kinephone");
 
+// Paramêtres par défaut.
 $defaults = array(
     'limit'  => '10',
     'offset' => '0'
@@ -16,8 +17,9 @@ $defaults = array(
 
 $output = '';
 
-
+//
 // ITEM //
+//
 $app->get('/item', function (Request $request) use ($pdo, $defaults) {
 
     try {
@@ -57,7 +59,9 @@ $app->get('/item/{id}', function (Silex\Application $app, $id) use ($pdo, $defau
     return $output;
 });
 
+//
 // IMAGE //
+//
 $app->get('/image', function (Request $request) use ($pdo, $defaults) {
 
     try {
@@ -97,7 +101,9 @@ $app->get('/image/{id}', function (Silex\Application $app, $id) use ($pdo, $defa
     return $output;
 });
 
+//
 // LANGUAGE //
+//
 $app->get('/language', function (Request $request) use ($pdo, $defaults) {
 
     try {
@@ -137,7 +143,9 @@ $app->get('/language/{id}', function (Silex\Application $app, $id) use ($pdo, $d
     return $output;
 });
 
+//
 // SOUND //
+//
 $app->get('/sound', function (Request $request) use ($pdo, $defaults) {
 
     try {
@@ -178,7 +186,9 @@ $app->get('/sound/{id}', function (Silex\Application $app, $id) use ($pdo, $defa
     return $output;
 });
 
+//
 // TEXT //
+//
 $app->get('/text', function (Request $request) use ($pdo, $defaults) {
 
     try {
@@ -218,7 +228,9 @@ $app->get('/text/{id}', function (Silex\Application $app, $id) use ($pdo, $defau
     return $output;
 });
 
+//
 // METHOD //
+//
 $app->get('/method', function (Request $request) use ($pdo, $defaults) {
 
     try {
@@ -258,7 +270,9 @@ $app->get('/method/{id}', function (Silex\Application $app, $id) use ($pdo, $def
     return $output;
 });
 
+//
 // ENTITY ID //
+//
 $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults) {
 
     $entity = new stdClass();
@@ -415,8 +429,8 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
                 'texts'  => $text->texts
             );
 
-            $all = json_encode($entity, JSON_PRETTY_PRINT);
-            print_r($all);
+            $output = json_encode($entity, JSON_PRETTY_PRINT);
+            print_r($output);
 
         }
 
@@ -425,20 +439,10 @@ $app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults)
         $entity = "Erreur !: " . $e->getMessage();
     }
 
-    try {
-        $statement = $pdo->prepare("SELECT * FROM item where id = {$id}");
-        $statement->execute();
-        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
-        $output = json_encode($results, JSON_PRETTY_PRINT);
-        $pdo = null;
-    } catch (PDOException $e) {
-        $output = "Erreur !: " . $e->getMessage();
-    }
-
     return $output;
 });
 
-
+$app->run();
 $stack = (new Stack\Builder())
     ->push('Silpion\Stack\Logger', array('logger' => new \Monolog\Logger('logger')))
 ;
