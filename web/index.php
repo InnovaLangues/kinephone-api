@@ -20,7 +20,7 @@ $output = '';
 //
 // ITEM //
 //
-$app->get('/item', function (Request $request) use ($pdo, $defaults) {
+$app->get('/items', function (Request $request) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare('SELECT * FROM item LIMIT :limit OFFSET :offset');
@@ -44,7 +44,7 @@ $app->get('/item', function (Request $request) use ($pdo, $defaults) {
     return $output;
 });
 
-$app->get('/item/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
+$app->get('/items/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM item where id = {$id}");
@@ -62,7 +62,7 @@ $app->get('/item/{id}', function (Silex\Application $app, $id) use ($pdo, $defau
 //
 // IMAGE //
 //
-$app->get('/image', function (Request $request) use ($pdo, $defaults) {
+$app->get('/images', function (Request $request) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM image LIMIT :limit OFFSET :offset");
@@ -86,7 +86,7 @@ $app->get('/image', function (Request $request) use ($pdo, $defaults) {
     return $output;
 });
 
-$app->get('/image/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
+$app->get('/images/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM image where id = {$id}");
@@ -104,7 +104,7 @@ $app->get('/image/{id}', function (Silex\Application $app, $id) use ($pdo, $defa
 //
 // LANGUAGE //
 //
-$app->get('/language', function (Request $request) use ($pdo, $defaults) {
+$app->get('/languages', function (Request $request) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM language LIMIT :limit OFFSET :offset");
@@ -128,7 +128,7 @@ $app->get('/language', function (Request $request) use ($pdo, $defaults) {
     return $output;
 });
 
-$app->get('/language/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
+$app->get('/languages/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM language where id = {$id}");
@@ -146,7 +146,7 @@ $app->get('/language/{id}', function (Silex\Application $app, $id) use ($pdo, $d
 //
 // SOUND //
 //
-$app->get('/sound', function (Request $request) use ($pdo, $defaults) {
+$app->get('/sounds', function (Request $request) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM sound LIMIT :limit OFFSET :offset");
@@ -170,7 +170,7 @@ $app->get('/sound', function (Request $request) use ($pdo, $defaults) {
     return $output;
 });
 
-$app->get('/sound/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
+$app->get('/sounds/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM sound where id = {$id}");
@@ -189,7 +189,7 @@ $app->get('/sound/{id}', function (Silex\Application $app, $id) use ($pdo, $defa
 //
 // TEXT //
 //
-$app->get('/text', function (Request $request) use ($pdo, $defaults) {
+$app->get('/texts', function (Request $request) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM text LIMIT :limit OFFSET :offset");
@@ -213,7 +213,7 @@ $app->get('/text', function (Request $request) use ($pdo, $defaults) {
     return $output;
 });
 
-$app->get('/text/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
+$app->get('/texts/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM text where id = {$id}");
@@ -231,7 +231,7 @@ $app->get('/text/{id}', function (Silex\Application $app, $id) use ($pdo, $defau
 //
 // METHOD //
 //
-$app->get('/method', function (Request $request) use ($pdo, $defaults) {
+$app->get('/methods', function (Request $request) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM method LIMIT :limit OFFSET :offset");
@@ -255,7 +255,7 @@ $app->get('/method', function (Request $request) use ($pdo, $defaults) {
     return $output;
 });
 
-$app->get('/method/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
+$app->get('/methods/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
         $statement = $pdo->prepare("SELECT * FROM method where id = {$id}");
@@ -273,7 +273,7 @@ $app->get('/method/{id}', function (Silex\Application $app, $id) use ($pdo, $def
 //
 // ENTITY ID //
 //
-$app->get('/entity/{id}', function (Request $request, $id) use ($pdo, $defaults) {
+$app->get('/kinephones/{id}', function (Request $request, $id) use ($pdo, $defaults) {
 
     $entity = new stdClass();
 
