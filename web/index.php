@@ -316,19 +316,32 @@ $app->get('/kinephones/{id}', function (Request $request, $id) use ($pdo, $defau
         $statementItem->execute();
         $resultsItem = $statementItem->fetchAll(PDO::FETCH_ASSOC);
 
-
-        // Ici, je parcours les items.
-        // Maintenant, faut que je parcours les tables "sound", "image", "text" sur l'item en cours
-        foreach ($resultsItem as $rowItem){
-            // Extraction du numéro de l'item
-            $itemId = (int) $rowItem['id'];
-
             //
             // Parcours de la table "sound"
             //
             $sound = new stdClass();
             $sound->sounds = array(
             );
+
+            //
+            // Parcours de la table "image"
+            //
+            $image = new stdClass();
+            $image->images = array(
+            );
+
+            $text = new stdClass();
+            $text->texts = array(
+                );
+
+
+        // Ici, je parcours les items.
+        // Maintenant, faut que je parcours les tables "sound", "image", "text" sur l'item en cours
+        foreach ($resultsItem as $rowItem){
+            // Extraction du numéro de l'item
+            $itemId = (int) $rowItem['id'];
+            $coords = (string) $rowItem['coords'];
+
             $sqlSound = "SELECT * FROM sound where item_id = {$itemId}";
 
             $statementSound = $pdo->prepare($sqlSound);
@@ -356,12 +369,6 @@ $app->get('/kinephones/{id}', function (Request $request, $id) use ($pdo, $defau
                     );
             }
 
-            //
-            // Parcours de la table "image"
-            //
-            $image = new stdClass();
-            $image->images = array(
-            );
             $sqlImage = "SELECT * FROM image where item_id = {$itemId}";
 
             $statementImage = $pdo->prepare($sqlImage);
@@ -391,9 +398,6 @@ $app->get('/kinephones/{id}', function (Request $request, $id) use ($pdo, $defau
             //
             // Parcours de la table "text"
             //
-            $text = new stdClass();
-            $text->texts = array(
-                );
             $sqlText = "SELECT * FROM text where item_id = {$itemId}";
             //echo "<br />" . $sqlText;
             $statementText = $pdo->prepare($sqlText);
@@ -422,8 +426,8 @@ $app->get('/kinephones/{id}', function (Request $request, $id) use ($pdo, $defau
             }
 
             $entity->items[] = array(
-                'id'     => (int)    $resultsItem[0]['id'],
-                'coords' => (string) $resultsItem[0]['coords'],
+                'id'     => $itemId,
+                'coords' => $coords,
                 'sounds' => $sound->sounds,
                 'images' => $image->images,
                 'texts'  => $text->texts
