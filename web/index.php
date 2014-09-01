@@ -350,7 +350,6 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
             foreach ($sounds as $sound){
                 $itemSounds->sounds[] = array(
 					'id'		=> (int) $sound['id'],
-					'item_id'	=> $itemId,
 					'type'		=> (string) $sound['sound_type'],
 					'url'		=> (string) $sound['url'],
 					'gender'	=> (string) $sound['gender'],
@@ -368,7 +367,6 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
             foreach ($images as $image){
                 $itemImages->images[] = array(
 					'id'			=> (int) $image['id'],
-					'item_id'		=> $itemId,
 					'image_type' 	=> (string) $image['image_type'],
 					'url' 			=> (string) $image['url'],
 					'visible' 		=> (boolean) $image['visible']
@@ -385,7 +383,6 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
             foreach ($texts as $text){
 				$itemTexts->texts[] = array(
 					'id'		=> (int) $text['id'],
-					'item_id'	=> $itemId,
 					'text_type'	=> (string) $text['text_type'],
 					'text'		=> (string) $text['text'],
 					'visible'	=> (boolean) $text['visible']
