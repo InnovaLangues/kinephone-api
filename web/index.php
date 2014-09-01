@@ -281,7 +281,6 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
 
         $statement = $pdo->prepare($sql);
         
-        
         // method id param
         if ($request->query->get('method')) {
             $statement->bindValue(':method', (int)$request->query->get('method'), PDO::PARAM_INT);
