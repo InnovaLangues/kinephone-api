@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Silex\Application();
 $app['debug'] = true;
 
-$pdo = new PDO('mysql:host=localhost;dbname=kinephone', "kinephone", "kinephone$");
+$pdo = new PDO('mysql:host=localhost;dbname=kinephone', "user", "pass");
 
 // default parameters
 $defaults = array(
@@ -15,8 +15,27 @@ $defaults = array(
     'offset' => '0'
 );
 
+//
+// We can go to :
+// items
+// items/{id}
+// images
+// images/{id}
+// languages
+// languages/{id}
+// sounds
+// sounds/{id}
+// texts
+// texts/{id}
+// methods
+// methods/{id}
+// kinephones/{lid}
+// kinephones/{lid}?{mid} / lid = languageId / mid = methodId
+//
+//
 // result
 $output = '';
+
 
 // GET ITEMS
 $app->get('/items', function (Request $request) use ($pdo, $defaults) {
@@ -39,10 +58,11 @@ $app->get('/items', function (Request $request) use ($pdo, $defaults) {
     } catch (PDOException $e) {
         $output = "Erreur !: " . $e->getMessage();
     }
+
     return $output;
 });
 
-// GET ITEM BY ID
+// GET ITEM BY ID 
 $app->get('/items/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
@@ -264,19 +284,18 @@ $app->get('/methods/{id}', function (Silex\Application $app, $id) use ($pdo, $de
     return $output;
 });
 
-
 // ENTITY BY LANGUAGE AND METHOD IDs
 $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $defaults) {
 
     $entity = new stdClass();
 
     try {
-	
-        $sql = "	SELECT l.*, m.id AS id_method, m.name, m.image_url 
-					FROM language l
-					JOIN method m ON m.language_id = l.id 
-					WHERE l.id = {$lId} AND m.id = :method 
-					LIMIT :limit OFFSET :offset";
+
+        $sql = " SELECT l.*, m.id AS id_method, m.name, m.image_url
+				   FROM language l
+				   JOIN method m ON m.language_id = l.id
+				  WHERE l.id = {$lId} AND m.id = :method
+				  LIMIT :limit OFFSET :offset";
 
         $statement = $pdo->prepare($sql);
         
@@ -325,8 +344,9 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
 			
             // item id and coords
             $itemId = (int) $item['id'];
-            $itemCoords = (string) $item['coords'];            
-            
+            $itemCoords = (string) $item['coords'];
+
+
              // sounds for each item
 			$itemSounds = new stdClass();
 			$itemSounds->sounds = array();
@@ -393,9 +413,7 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
                 'sounds' => $itemSounds -> sounds,
                 'images' => $itemImages -> images,
                 'texts'  => $itemTexts -> texts
-            );
-
-             
+            );          
         }
 		$output = json_encode($entity, JSON_PRETTY_PRINT);     
         $pdo = null;    
@@ -403,6 +421,7 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
     } catch (PDOException $e) {
         return "Erreur !: " . $e->getMessage();        
     }
+
     return $output;
 });
 
