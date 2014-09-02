@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Silex\Application();
 $app['debug'] = true;
 
-$pdo = new PDO('mysql:host=localhost;dbname=kinephone', "user", "pass");
+$pdo = new PDO('mysql:host=localhost;dbname=kinephone', "kinephone", "kinephone$");
 
 // default parameters
 $defaults = array(
@@ -17,7 +17,6 @@ $defaults = array(
 
 // result
 $output = '';
-
 
 // GET ITEMS
 $app->get('/items', function (Request $request) use ($pdo, $defaults) {
@@ -40,11 +39,10 @@ $app->get('/items', function (Request $request) use ($pdo, $defaults) {
     } catch (PDOException $e) {
         $output = "Erreur !: " . $e->getMessage();
     }
-
     return $output;
 });
 
-// GET ITEM BY ID 
+// GET ITEM BY ID
 $app->get('/items/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
@@ -266,6 +264,7 @@ $app->get('/methods/{id}', function (Silex\Application $app, $id) use ($pdo, $de
     return $output;
 });
 
+
 // ENTITY BY LANGUAGE AND METHOD IDs
 $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $defaults) {
 
@@ -326,8 +325,7 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
 			
             // item id and coords
             $itemId = (int) $item['id'];
-            $itemCoords = (string) $item['coords'];
-            
+            $itemCoords = (string) $item['coords'];            
             
              // sounds for each item
 			$itemSounds = new stdClass();
@@ -397,14 +395,14 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
                 'texts'  => $itemTexts -> texts
             );
 
-            $output = json_encode($entity, JSON_PRETTY_PRINT);      
+             
         }
-
-        $pdo = null;
+		$output = json_encode($entity, JSON_PRETTY_PRINT);     
+        $pdo = null;    
+		
     } catch (PDOException $e) {
-        $entity = "Erreur !: " . $e->getMessage();
+        return "Erreur !: " . $e->getMessage();        
     }
-
     return $output;
 });
 
