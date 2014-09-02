@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Silex\Application();
 $app['debug'] = true;
 
-$pdo = new PDO('mysql:host=localhost;dbname=kinephone', "user", "pass");
+$pdo = new PDO('mysql:host=localhost;dbname=kinephone', "kinephone", "kinephone$");
 
 // default parameters
 $defaults = array(
@@ -319,19 +319,7 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
         $sql = "SELECT * FROM item where method_id = {$entity->method_id}";
         $statement = $pdo->prepare($sql);
         $statement->execute();
-        $items = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        // sounds for each item
-        $itemSounds = new stdClass();
-        $itemSounds->sounds = array();
-
-		// images for each item
-		$itemImages = new stdClass();
-		$itemImages->images = array();
-
-		// texts for each item
-		$itemTexts = new stdClass();
-		$itemTexts->texts = array();
+        $items = $statement->fetchAll(PDO::FETCH_ASSOC);       
 
         // populate each item with his images / sounds / texts
         foreach ($items as $item){
@@ -339,6 +327,19 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
             // item id and coords
             $itemId = (int) $item['id'];
             $itemCoords = (string) $item['coords'];
+            
+            
+             // sounds for each item
+			$itemSounds = new stdClass();
+			$itemSounds->sounds = array();
+
+			// images for each item
+			$itemImages = new stdClass();
+			$itemImages->images = array();
+
+			// texts for each item
+			$itemTexts = new stdClass();
+			$itemTexts->texts = array();
 			
 			// sounds query
             $sql = "SELECT * FROM sound where item_id = {$itemId}";
@@ -388,7 +389,6 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
 					'visible'	=> (boolean) $text['visible']
 				);
             }
-
             $entity->items[] = array(
                 'id'     => $itemId,
                 'coords' => $itemCoords,
@@ -397,7 +397,7 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
                 'texts'  => $itemTexts -> texts
             );
 
-            $output = json_encode($entity, JSON_PRETTY_PRINT);
+            $output = json_encode($entity, JSON_PRETTY_PRINT);      
         }
 
         $pdo = null;
