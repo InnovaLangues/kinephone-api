@@ -15,9 +15,26 @@ $defaults = array(
     'offset' => '0'
 );
 
+//
+// We can to go :
+// items
+// items/{id}
+// images
+// images/{id}
+// languages
+// languages/{id}
+// sounds
+// sounds/{id}
+// texts
+// texts/{id}
+// methods
+// methods/{id}
+// kinephones/{lid}
+// kinephones/{lid}?{mid} / lid = languageId / mid = methodId
+//
+//
 // result
 $output = '';
-
 
 // GET ITEMS
 $app->get('/items', function (Request $request) use ($pdo, $defaults) {
@@ -44,7 +61,7 @@ $app->get('/items', function (Request $request) use ($pdo, $defaults) {
     return $output;
 });
 
-// GET ITEM BY ID 
+// GET ITEM BY ID
 $app->get('/items/{id}', function (Silex\Application $app, $id) use ($pdo, $defaults) {
 
     try {
@@ -272,15 +289,15 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
     $entity = new stdClass();
 
     try {
-	
-        $sql = "	SELECT l.*, m.id AS id_method, m.name, m.image_url 
-					FROM language l
-					JOIN method m ON m.language_id = l.id 
-					WHERE l.id = {$lId} AND m.id = :method 
-					LIMIT :limit OFFSET :offset";
+
+        $sql = " SELECT l.*, m.id AS id_method, m.name, m.image_url
+				   FROM language l
+				   JOIN method m ON m.language_id = l.id
+				  WHERE l.id = {$lId} AND m.id = :method
+				  LIMIT :limit OFFSET :offset";
 
         $statement = $pdo->prepare($sql);
-        
+
         // method id param
         if ($request->query->get('method')) {
             $statement->bindValue(':method', (int)$request->query->get('method'), PDO::PARAM_INT);
@@ -288,18 +305,18 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
         else{
 			return 'No method id defined in url';
 		}
-        
+
         // limits & offset params
         $limit = (int)$defaults['limit'];
         if ($request->query->get('limit')) {
             $limit = (int)$request->query->get('limit');
         }
-        
+
         $offset = (int)$defaults['offset'];
         if ($request->query->get('offset')) {
             $offset = (int)$request->query->get('offset');
         }
-        
+
 		$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
 		$statement->bindValue(':offset', $offset, PDO::PARAM_INT);
         $statement->execute();
@@ -312,23 +329,23 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
         $entity->method_id = (int) $results[0]['id_method'];
         $entity->name = (string) $results[0]['name'];
         $entity->image = (string) $results[0]['image_url'];
-
         // items related to entity
         $entity->items = array();
 
         $sql = "SELECT * FROM item where method_id = {$entity->method_id}";
         $statement = $pdo->prepare($sql);
         $statement->execute();
-        $items = $statement->fetchAll(PDO::FETCH_ASSOC);       
+        $items = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         // populate each item with his images / sounds / texts
         foreach ($items as $item){
-			
+
             // item id and coords
             $itemId = (int) $item['id'];
+
             $itemCoords = (string) $item['coords'];
-            
-            
+
+
              // sounds for each item
 			$itemSounds = new stdClass();
 			$itemSounds->sounds = array();
@@ -340,7 +357,7 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
 			// texts for each item
 			$itemTexts = new stdClass();
 			$itemTexts->texts = array();
-			
+
 			// sounds query
             $sql = "SELECT * FROM sound where item_id = {$itemId}";
             $statement = $pdo->prepare($sql);
@@ -396,15 +413,13 @@ $app->get('/kinephones/{lId}', function (Request $request, $lId) use ($pdo, $def
                 'images' => $itemImages -> images,
                 'texts'  => $itemTexts -> texts
             );
-
-            $output = json_encode($entity, JSON_PRETTY_PRINT);      
+            $output = json_encode($entity, JSON_PRETTY_PRINT);
         }
-
         $pdo = null;
     } catch (PDOException $e) {
         $entity = "Erreur !: " . $e->getMessage();
     }
-
+    var_dump($output);die();
     return $output;
 });
 
