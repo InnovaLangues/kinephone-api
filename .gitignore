@@ -1,2 +1,4 @@
 # Silex directories
 vendor/*
+/nbproject/*
+/nbproject/private/

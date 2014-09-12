@@ -1,0 +1,2 @@
+[2014-09-12 17:05:21] myapp.INFO: Matched route "GET_kinephones_lId" (parameters: "_controller": "{}", "lId": "1", "_route": "GET_kinephones_lId") [] []
+[2014-09-12 17:05:21] myapp.INFO: > GET /innova/kinephone-api/web/index.php/kinephones/1?method=1 [] []
