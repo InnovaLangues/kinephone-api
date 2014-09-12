@@ -5,6 +5,11 @@ First version of the kinephone api.
 
 - clone repository  and run composer install.
 - change dbname, user and password
+- add rights for log folder by runnig setfacl commands :
+
+```setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX app/logs/```
+
+```setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX app/logs/``` 
 
 if you want to enable cross origin requests
 ===========================================
@@ -14,12 +19,6 @@ if you want to enable cross origin requests
 - check the syntax by running : apachectl -t
 - restart apache 2 : service apache2 reload
 - be sure to activate mod_headers module by running : a2enmod headers
-- add rights for log folder by running setfacl command
-
-
-```setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX app/logs/```
-
-```setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX app/logs/```
 
 Request example
 ===============
