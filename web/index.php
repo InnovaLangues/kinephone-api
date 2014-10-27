@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Silex\Application();
 $app['debug'] = true;
 
-$pdo = new PDO('mysql:host=localhost;dbname=kinephone21', "kinephone21", "kinephone21$");
+$pdo = new PDO('mysql:host=localhost;dbname=kinephone21', "user", "pass");
 
 // default parameters
 $defaults = array(
