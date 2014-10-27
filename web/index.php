@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Silex\Application();
 $app['debug'] = true;
 
-$pdo = new PDO('mysql:host=localhost;dbname=kinephone1', "user", "pass");
+$pdo = new PDO('mysql:host=localhost;dbname=kinephone21', "kinephone21", "kinephone21$");
 
 // default parameters
 $defaults = array(
@@ -174,8 +174,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
 
         // entity main data
         $entity->language_id = (int) $results[0]['id'];
-        $entity->code_iso = (string) $results[0]['code_iso_639'];
-        $entity->code_unicode = (string) $results[0]['code_unicode_api'];
+        $entity->code_iso = (string) $results[0]['code_iso'];
         $entity->table_id = (int) $results[0]['id_table'];
         $entity->name = (string) $results[0]['name'];
         $entity->image = (string) $results[0]['image_url'];
@@ -183,7 +182,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
         // items related to entity
         $entity->items = array();
 
-        $sql = "SELECT * FROM kine_item where kine_table_id = {$tid}";
+        $sql = "SELECT ki.id, kti.coords FROM kine_item ki JOIN kine_table_item kti ON kti.kine_item_id = ki.id where kti.kine_table_id = {$tid}";
         $statement = $pdo->prepare($sql);
         $statement->execute();
         $items = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -195,6 +194,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
         }
 
         // get params for the selected table
+        // params are used only to change queries as necessary
         $sql = " SELECT p.* 
         FROM kine_param p
         WHERE p.kine_table_id = {$entity->table_id}";
