@@ -165,13 +165,12 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
         $statement->execute();
         $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-
         if (!$results) {
             throw new KineException(
             sprintf(KineException::KEXCEPTION_NO_LANGUAGE_MESSAGE, $lid, $mid), KineException::KEXCEPTION_NO_LANGUAGE_CODE
             );
         }
-
+        
         // entity main data
         $entity->language_id = (int) $results[0]['id'];
         $entity->code_iso = (string) $results[0]['code_iso'];
@@ -202,7 +201,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
         $statement = $pdo->prepare($sql);
         $statement->execute();
         $params = $statement->fetchAll(PDO::FETCH_ASSOC);
-
+     
         if (!$params) {
             throw new KineException(
             sprintf(KineException::KEXCEPTION_NO_PARAMS_MESSAGE, $lid, $mid), KineException::KEXCEPTION_NO_PARAMS_CODE
@@ -346,7 +345,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
                 'texts' => $itemTexts->texts
             );
         }
-
+       
         $data = json_encode($entity, JSON_PRETTY_PRINT);
         $pdo = null;
         return new Response($data, 200, array('ContentType' => 'application/json'));
