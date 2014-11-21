@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Silex\Application();
 $app['debug'] = true;
 
-$pdo = new PDO('mysql:host=localhost;dbname=kinephone21', "user", "pass");
+$pdo = new PDO('mysql:host=localhost;dbname=kinephone21', "kinephone21", "kinephone21$");
 
 // default parameters
 $defaults = array(
@@ -58,6 +58,19 @@ $app->get('/kinephones/tables/{id}/params', function(Request $request, $id) use 
 $app->put('/kinephones/tables/{tid}/params/{pid}', function(Request $request) use ($app, $pdo) {
     try {
         $payload = json_decode($request->getContent());
+        
+        // check if params exists
+        $sql = "SELECT *
+            FROM kine_param 
+            WHERE kine_param.kine_table_id = {$payload->id}";
+
+        $statement = $pdo->prepare($sql);
+        $statement->execute();
+        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+        if(!$results){
+            throw new Exception('Error', 400);
+        }
+        
         $param = new stdClass();
         $param->id = $payload->id;
         $param->tableId = $payload->tableId;
@@ -191,6 +204,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
             sprintf(KineException::KEXCEPTION_NO_ITEMS_MESSAGE, $lid, $mid), KineException::KEXCEPTION_NO_ITEMS_CODE
             );
         }
+        
 
         // get params for the selected table
         // params are used only to change queries as necessary
@@ -260,6 +274,8 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
                     sprintf(KineException::KEXCEPTION_NO_SOUNDS_MESSAGE, $lid, $mid), KineException::KEXCEPTION_NO_SOUNDS_CODE
                     );
                 }
+                
+       
 
                 // create item sounds array
                 foreach ($sounds as $sound) {
@@ -325,18 +341,23 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
                     throw new KineException(
                     sprintf(KineException::KEXCEPTION_NO_TEXTS_MESSAGE, $lid, $mid), KineException::KEXCEPTION_NO_TEXTS_CODE
                     );
-                }
+                } 
+                
+                
 
                 // create item texts array
                 foreach ($texts as $text) {
+                    //echo htmlentities(utf8_encode($text['text']), ENT_NOQUOTES, 'UTF-8').'<br/>';
+                    // echo $text['text'].'<br/>';
                     $itemTexts->texts[] = array(
                         'id' => (int) $text['id'],
                         'text_type' => (string) $text['text_type'],
-                        'text' => (string) utf8_encode($text['text'])
+                        //'text' => (string) utf8_encode($text['text'])
+                        'text' => (string) $text['text']
                     );
                 }
             }
-
+            
             $entity->items[] = array(
                 'id' => $itemId,
                 'coords' => $itemCoords,
@@ -344,8 +365,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
                 'images' => $itemImages->images,
                 'texts' => $itemTexts->texts
             );
-        }
-       
+        }      
         $data = json_encode($entity, JSON_PRETTY_PRINT);
         $pdo = null;
         return new Response($data, 200, array('ContentType' => 'application/json'));
@@ -355,6 +375,8 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
     } catch (KineException $ke) {
         $app['monolog']->addError("KINEPHONE ERROR :: " . $ke->getMessage() . " WITH CODE :: " . $ke->getCode());
         return new Response(null, 404);
+    } catch (Exception $e){
+        echo $e.getMessage();die;
     }
 });
 
