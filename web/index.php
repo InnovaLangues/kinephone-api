@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Silex\Application();
 $app['debug'] = true;
 
-$pdo = new PDO('mysql:host=localhost;dbname=kinephone21', "kinephone21", "kinephone21$");
+$pdo = new PDO('mysql:host=localhost;dbname=kinephone21', "user", "pass");
 
 // default parameters
 $defaults = array(
@@ -114,8 +114,17 @@ $app->get('/kinephones/languages', function(Request $request) use ($app, $pdo) {
         $statement = $pdo->prepare($sql);
         $statement->execute();
         $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+        
+        $languages = array();
+        
+        foreach ($results as $r){
+            $o = new stdClass();
+            $o->language_id = (int) $r['language_id'];
+            $o->language_name = utf8_encode($r['language_name']);
+            $languages[] = $o;            
+        }
 
-        $data = json_encode($results, JSON_PRETTY_PRINT);
+        $data = json_encode($languages, JSON_PRETTY_PRINT);
         $pdo = null;
         return new Response($data, 200, array('ContentType' => 'application/json'));
     } catch (Exception $ex) {
@@ -135,18 +144,28 @@ $app->get('/kinephones/languages/{lid}/tables', function(Request $request, $lid)
         $statement = $pdo->prepare($sql);
         $statement->execute();
         $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+        
+        $tables = array();
+        
+        foreach ($results as $r){  
+            $o = new stdClass();
+            $o->table_id = (int) $r['table_id'];
+            $o->table_name = utf8_encode($r['table_name']);
+            $o->image_url = $r['image_url'];
+            $tables[] = $o;            
+        }
 
-        $data = json_encode($results, JSON_PRETTY_PRINT);
+        $response = json_encode($tables, JSON_PRETTY_PRINT);
 
         $pdo = null;
-        return new Response($data, 200, array('ContentType' => 'application/json'));
+        return new Response($response, 200, array('ContentType' => 'application/json'));
     } catch (Exception $ex) {
         $app['monolog']->addError("EXCEPTION :: " . $ex->getMessage() . " " . $ex->getTrace());
         return new Response("Error", 400);
     }
 });
 
-// ENTITY BY LANGUAGE AND TABLE IDs
+// Everything concerning a language (lid) and a table (tid)
 $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $request, $lid, $tid) use ($app, $pdo, $defaults) {
     // result
     $entity = new stdClass();
@@ -188,7 +207,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
         $entity->language_id = (int) $results[0]['id'];
         $entity->code_iso = (string) $results[0]['code_iso'];
         $entity->table_id = (int) $results[0]['id_table'];
-        $entity->name = (string) $results[0]['name'];
+        $entity->name = (string) utf8_encode($results[0]['name']);
         $entity->image = (string) $results[0]['image_url'];
 
         // items related to entity
@@ -203,8 +222,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
             throw new KineException(
             sprintf(KineException::KEXCEPTION_NO_ITEMS_MESSAGE, $lid, $mid), KineException::KEXCEPTION_NO_ITEMS_CODE
             );
-        }
-        
+        }        
 
         // get params for the selected table
         // params are used only to change queries as necessary
@@ -274,8 +292,6 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
                     sprintf(KineException::KEXCEPTION_NO_SOUNDS_MESSAGE, $lid, $mid), KineException::KEXCEPTION_NO_SOUNDS_CODE
                     );
                 }
-                
-       
 
                 // create item sounds array
                 foreach ($sounds as $sound) {
@@ -342,18 +358,13 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
                     sprintf(KineException::KEXCEPTION_NO_TEXTS_MESSAGE, $lid, $mid), KineException::KEXCEPTION_NO_TEXTS_CODE
                     );
                 } 
-                
-                
 
                 // create item texts array
                 foreach ($texts as $text) {
-                    //echo htmlentities(utf8_encode($text['text']), ENT_NOQUOTES, 'UTF-8').'<br/>';
-                    // echo $text['text'].'<br/>';
                     $itemTexts->texts[] = array(
                         'id' => (int) $text['id'],
                         'text_type' => (string) $text['text_type'],
-                        //'text' => (string) utf8_encode($text['text'])
-                        'text' => (string) $text['text']
+                        'text' => $text['text']
                     );
                 }
             }
