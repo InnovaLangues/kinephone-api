@@ -108,7 +108,7 @@ $app->put('/kinephones/tables/{tid}/params/{pid}', function(Request $request) us
 // get available languages
 $app->get('/kinephones/languages', function(Request $request) use ($app, $pdo) {
     try {
-        $sql = "SELECT l.id AS language_id, l.name AS language_name
+        $sql = "SELECT l.id AS language_id, l.name AS language_name, l.code_iso AS language_code_iso
 		FROM kine_language l";
 
         $statement = $pdo->prepare($sql);
@@ -121,6 +121,7 @@ $app->get('/kinephones/languages', function(Request $request) use ($app, $pdo) {
             $o = new stdClass();
             $o->language_id = (int) $r['language_id'];
             $o->language_name = utf8_encode($r['language_name']);
+            $o->language_code_iso = utf8_encode($r['language_code_iso']);
             $languages[] = $o;            
         }
 
@@ -175,7 +176,7 @@ $app->get('/kinephones/languages/{lid}/table/{tid}/items', function (Request $re
         $sql = " SELECT l.*, t.id AS id_table, t.name, t.image_url
 		FROM kine_language l
 		JOIN kine_table t ON t.kine_language_id = l.id
-		WHERE l.id = {$lid} AND t.id = {$tid}
+		WHERE l.code_iso = '{$lid}' AND t.id = {$tid}
 		LIMIT :limit OFFSET :offset";
 
         $statement = $pdo->prepare($sql);
